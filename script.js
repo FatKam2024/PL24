@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let language = 'TC'; // Default language is Traditional Chinese
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
-    let showStadium = true; // Default to showing the stadium
+    let showStadium = false; // Default to not showing the stadium
 
     const translations = {
         TC: {
@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
             allTeams: '所有球隊',
             last: '上月',
             next: '下月',
-            showStadium: '顯示球場'
+            showStadium: '顯示球場',
+            months: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
         },
         EN: {
             today: 'Today',
@@ -42,15 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
             allTeams: 'All Teams',
             last: 'Last',
             next: 'Next',
-            showStadium: 'Show Stadium'
+            showStadium: 'Show Stadium',
+            months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         }
     };
 
     function parseDate(dateString) {
-        const year = parseInt(dateString.substring(0, 4));
-        const month = parseInt(dateString.substring(5, 7)) - 1;
-        const day = parseInt(dateString.substring(8, 10));
-        return new Date(year, month, day);
+        // Update date parsing to handle "DD/MM/YYYY" format
+        const [day, month, year] = dateString.split('/').map(Number);
+        return new Date(year, month - 1, day);
     }
 
     function loadMatches() {
@@ -105,12 +106,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
         calendar.innerHTML = '';
 
+        // Add month indicator
+        const monthIndicator = document.createElement('h2');
+        monthIndicator.textContent = translations[language].months[currentMonth] + ' ' + currentYear;
+        monthIndicator.className = 'month-indicator';
+        calendar.appendChild(monthIndicator);
+
+        // Create grid for days of the week
+        const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
+        daysOfWeek.forEach(day => {
+            const dayLabel = document.createElement('div');
+            dayLabel.className = 'day-label';
+            dayLabel.textContent = day;
+            calendar.appendChild(dayLabel);
+        });
+
+        // Create grid cells for days before the first of the month
         for (let i = 0; i < firstDayOfMonth; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'date-box empty';
             calendar.appendChild(emptyCell);
         }
 
+        // Create cells for each day of the month
         for (let day = 1; day <= daysInMonth; day++) {
             const dateBox = document.createElement('div');
             dateBox.className = 'date-box';
@@ -123,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const dateHeading = document.createElement('h3');
-            dateHeading.textContent = `${day} (${['日', '一', '二', '三', '四', '五', '六'][currentDate.getDay()]})`;
+            dateHeading.textContent = day;
             dateBox.appendChild(dateHeading);
 
             if (matchMap[matchKey]) {
@@ -145,12 +163,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function translateTeam(match, isHome = true) {
-        const team = isHome ? match.homeTeamEN : match.awayTeamEN;
-        return language === 'TC' ? teamNames[team] || team : team;
+        const team = isHome ? (language === 'TC' ? match.homeTeamTC : match.homeTeamEN) 
+                            : (language === 'TC' ? match.awayTeamTC : match.awayTeamEN);
+        return team;
     }
 
     function translateStadium(match) {
-        return language === 'TC' ? match.stadiumTC : match.stadiumTC;
+        return language === 'TC' ? match.stadiumTC : match.stadiumTC; // Keep TC for now as EN is not provided
     }
 
     function loadTeamOptions() {
