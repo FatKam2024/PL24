@@ -50,7 +50,7 @@ nav select {
     gap: 10px;
     padding: 20px;
     margin: 0 auto;
-    max-width: 1400px;
+    max-width: 1600px;
 }
 
 .month-indicator {
@@ -85,7 +85,7 @@ nav select {
 
 .match-info {
     margin-top: 5px;
-    font-size: 12px;
+    font-size: 15px;
     font-weight: bold;
 }
 
