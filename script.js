@@ -1,4 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const teamNames = {
+        'Brighton & Hove Albion': '白禮頓',
+        'Arsenal': '阿仙奴',
+        'Liverpool': '利物浦',
+        'Manchester City': '曼城',
+        'Aston Villa': '阿士東維拉',
+        'Brentford': '賓福特',
+        'Manchester United': '曼聯',
+        'Newcastle United': '紐卡素',
+        'Bournemouth': '般尼茅夫',
+        'Nottingham Forest': '諾定咸森林',
+        'Leicester City': '李斯特城',
+        'Tottenham Hotspur': '熱刺',
+        'Crystal Palace': '水晶宮',
+        'West Ham United': '韋斯咸',
+        'Fulham': '富咸',
+        'Southampton': '修咸頓',
+        'Chelsea': '車路士',
+        'Ipswich Town': '葉士域治',
+        'Wolverhampton Wanderers': '狼隊',
+        'Everton': '愛華頓'
+    };
+
     let language = 'TC'; // Default language is Traditional Chinese
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
