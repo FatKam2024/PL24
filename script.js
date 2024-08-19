@@ -22,10 +22,34 @@ document.addEventListener('DOMContentLoaded', function() {
         'Everton': '愛華頓'
     };
 
+    const teamCodes = {
+        'BHA': 'Brighton & Hove Albion',
+        'ARS': 'Arsenal',
+        'LIV': 'Liverpool',
+        'MCI': 'Manchester City',
+        'AVL': 'Aston Villa',
+        'BRE': 'Brentford',
+        'MUN': 'Manchester United',
+        'NEW': 'Newcastle United',
+        'BOU': 'Bournemouth',
+        'NFO': 'Nottingham Forest',
+        'LEI': 'Leicester City',
+        'TOT': 'Tottenham Hotspur',
+        'CRY': 'Crystal Palace',
+        'WHU': 'West Ham United',
+        'FUL': 'Fulham',
+        'SOU': 'Southampton',
+        'CHE': 'Chelsea',
+        'IPS': 'Ipswich Town',
+        'WOL': 'Wolverhampton Wanderers',
+        'EVE': 'Everton'
+    };
+
     let language = 'TC'; // Default language is Traditional Chinese
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
     let showStadium = false; // Default to not showing the stadium
+    let selectedTeam = 'all'; // Default to showing all teams
 
     const translations = {
         TC: {
@@ -64,9 +88,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const matchData = match.split(',');
                     if (matchData.length < 6) return;
 
-                    const [date, homeTeamTC, awayTeamTC, homeTeamEN, awayTeamEN, stadiumTC] = matchData;
+                    const [date, homeTeamTC, awayTeamTC, homeTeamCode, awayTeamCode, stadiumTC] = matchData;
 
-                    if (!date || !homeTeamTC || !awayTeamTC || !homeTeamEN || !awayTeamEN || !stadiumTC) {
+                    if (!date || !homeTeamTC || !awayTeamTC || !homeTeamCode || !awayTeamCode || !stadiumTC) {
                         return;
                     }
 
@@ -79,9 +103,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     matchMap[matchKey].push({
                         date: matchDate,
-                        homeTeamEN: homeTeamEN.trim(),
+                        homeTeamCode: homeTeamCode.trim(),
                         homeTeamTC: homeTeamTC.trim(),
-                        awayTeamEN: awayTeamEN.trim(),
+                        awayTeamCode: awayTeamCode.trim(),
                         awayTeamTC: awayTeamTC.trim(),
                         stadiumTC: stadiumTC.trim(),
                     });
@@ -145,15 +169,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (matchMap[matchKey]) {
                 matchMap[matchKey].forEach(match => {
-                    const matchInfo = document.createElement('div');
-                    matchInfo.className = 'match-info';
-                    matchInfo.innerHTML = `<p>${translateTeam(match)} vs ${translateTeam(match, false)}</p>`;
-                    
-                    if (showStadium) {
-                        matchInfo.innerHTML += `<p class="stadium-info">${translateStadium(match)}</p>`;
+                    if (selectedTeam === 'all' || 
+                        teamCodes[match.homeTeamCode] === selectedTeam || 
+                        teamCodes[match.awayTeamCode] === selectedTeam) {
+                        const matchInfo = document.createElement('div');
+                        matchInfo.className = 'match-info';
+                        matchInfo.innerHTML = `${translateTeam(match)} vs ${translateTeam(match, false)}`;
+                        
+                        if (showStadium) {
+                            matchInfo.innerHTML += ` <span class="stadium-info">${translateStadium(match)}</span>`;
+                        }
+                        
+                        dateBox.appendChild(matchInfo);
                     }
-                    
-                    dateBox.appendChild(matchInfo);
                 });
             }
 
@@ -162,13 +190,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function translateTeam(match, isHome = true) {
-        const team = isHome ? (language === 'TC' ? match.homeTeamTC : match.homeTeamEN) 
-                            : (language === 'TC' ? match.awayTeamTC : match.awayTeamEN);
-        return team;
+        const teamCode = isHome ? match.homeTeamCode : match.awayTeamCode;
+        const teamTC = isHome ? match.homeTeamTC : match.awayTeamTC;
+        return language === 'TC' ? teamTC : teamCode;
     }
 
     function translateStadium(match) {
-        return language === 'TC' ? match.stadiumTC : match.stadiumTC; // Keep TC for now as EN is not provided
+        return match.stadiumTC; // Keep TC as EN is not provided
     }
 
     function loadTeamOptions() {
@@ -176,7 +204,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!teamSelect) return;
 
         teamSelect.innerHTML = `<option value="all">${translations[language].allTeams}</option>`;
-        Object.keys(teamNames).forEach(enName => {
+        Object.keys(teamCodes).forEach(code => {
+            const enName = teamCodes[code];
             const option = document.createElement('option');
             option.value = enName;
             option.textContent = language === 'TC' ? teamNames[enName] : enName;
@@ -233,7 +262,10 @@ document.addEventListener('DOMContentLoaded', function() {
     loadMatches();
 
     document.getElementById('todayBtn')?.addEventListener('click', goToToday);
-    document.getElementById('teamSelect')?.addEventListener('change', loadMatches);
+    document.getElementById('teamSelect')?.addEventListener('change', function() {
+        selectedTeam = this.value;
+        loadMatches();
+    });
     document.getElementById('langBtn')?.addEventListener('click', function() {
         language = (language === 'TC') ? 'EN' : 'TC';
         this.textContent = language;
