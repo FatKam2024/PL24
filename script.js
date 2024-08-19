@@ -1,30 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const teamNames = {
-        'Brighton & Hove Albion': '白禮頓',
-        'Arsenal': '阿仙奴',
-        'Liverpool': '利物浦',
-        'Manchester City': '曼城',
-        'Aston Villa': '阿士東維拉',
-        'Brentford': '賓福特',
-        'Manchester United': '曼聯',
-        'Newcastle United': '紐卡素',
-        'Bournemouth': '般尼茅夫',
-        'Nottingham Forest': '諾定咸森林',
-        'Leicester City': '李斯特城',
-        'Tottenham Hotspur': '熱刺',
-        'Crystal Palace': '水晶宮',
-        'West Ham United': '韋斯咸',
-        'Fulham': '富咸',
-        'Southampton': '修咸頓',
-        'Chelsea': '車路士',
-        'Ipswich Town': '葉士域治',
-        'Wolverhampton Wanderers': '狼隊',
-        'Everton': '愛華頓'
-    };
-
     let language = 'TC'; // Default language is Traditional Chinese
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
+    let showStadium = true; // Default to showing the stadium
 
     function parseDate(dateString) {
         // Extract the year, month, and day from the dateString (format: YYYY年MM月DD日)
@@ -43,11 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 matches.forEach(match => {
                     const matchData = match.split(',');
-                    if (matchData.length < 5) return; // Skip any malformed rows
+                    if (matchData.length < 6) return; // Skip any malformed rows
 
-                    const [date, homeTeamEN, homeTeamTC, awayTeamEN, awayTeamTC, stadiumEN, stadiumTC] = matchData;
+                    const [date, homeTeamTC, awayTeamTC, homeTeamEN, awayTeamEN, stadiumTC] = matchData;
+
                     const matchDate = parseDate(date.trim());
-
                     const matchKey = `${matchDate.getFullYear()}-${matchDate.getMonth() + 1}-${matchDate.getDate()}`;
 
                     if (!matchMap[matchKey]) {
@@ -56,16 +34,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     matchMap[matchKey].push({
                         date: matchDate,
-                        homeTeamEN: homeTeamEN.trim(),
-                        homeTeamTC: homeTeamTC.trim(),
-                        awayTeamEN: awayTeamEN.trim(),
-                        awayTeamTC: awayTeamTC.trim(),
-                        stadiumEN: stadiumEN.trim(),
-                        stadiumTC: stadiumTC.trim(),
+                        homeTeamEN: homeTeamEN?.trim(),
+                        homeTeamTC: homeTeamTC?.trim(),
+                        awayTeamEN: awayTeamEN?.trim(),
+                        awayTeamTC: awayTeamTC?.trim(),
+                        stadiumTC: stadiumTC?.trim(),
                     });
                 });
 
                 renderCalendar(matchMap);
+            })
+            .catch(error => {
+                console.error("Error loading CSV data:", error);
             });
     }
 
@@ -105,7 +85,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 matchMap[matchKey].forEach(match => {
                     const matchInfo = document.createElement('div');
                     matchInfo.className = 'match-info';
-                    matchInfo.innerHTML = `<p>${translateTeam(match)} vs ${translateTeam(match, false)}</p><p>${translateStadium(match)}</p>`;
+                    matchInfo.innerHTML = `<p>${translateTeam(match)} vs ${translateTeam(match, false)}</p>`;
+                    
+                    // Conditionally show the stadium
+                    if (showStadium) {
+                        matchInfo.innerHTML += `<p>${translateStadium(match)}</p>`;
+                    }
+                    
                     dateBox.appendChild(matchInfo);
                 });
             }
@@ -184,5 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('nextMonthBtn').addEventListener('click', function() {
         changeMonth(1);
+    });
+
+    // Handle the "Show Stadium" checkbox
+    document.getElementById('showStadium').addEventListener('change', function() {
+        showStadium = this.checked;
+        loadMatches(); // Reload the matches with the updated stadium visibility
     });
 });
