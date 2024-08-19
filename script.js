@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     let language = 'TC'; // Default language is Traditional Chinese
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
 
     function parseDate(dateString) {
         // Extract the year, month, and day from the dateString (format: YYYY年MM月DD日)
@@ -37,18 +39,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.text())
             .then(data => {
                 const matches = data.trim().split('\n').slice(1); // Skip header row and trim any extra spaces
-                const calendar = document.getElementById('calendar');
-                calendar.innerHTML = ''; // Clear the calendar
-                const today = new Date();
-                today.setHours(0, 0, 0, 0); // Normalize today's date
-
                 const matchMap = {};
 
                 matches.forEach(match => {
                     const matchData = match.split(',');
-                    if (matchData.length < 4) return; // Skip any malformed rows
+                    if (matchData.length < 5) return; // Skip any malformed rows
 
-                    const [date, homeTeam, awayTeam, stadium] = matchData;
+                    const [date, homeTeamEN, homeTeamTC, awayTeamEN, awayTeamTC, stadiumEN, stadiumTC] = matchData;
                     const matchDate = parseDate(date.trim());
 
                     const matchKey = `${matchDate.getFullYear()}-${matchDate.getMonth() + 1}-${matchDate.getDate()}`;
@@ -59,9 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     matchMap[matchKey].push({
                         date: matchDate,
-                        homeTeam: homeTeam.trim(),
-                        awayTeam: awayTeam.trim(),
-                        stadium: stadium.trim(),
+                        homeTeamEN: homeTeamEN.trim(),
+                        homeTeamTC: homeTeamTC.trim(),
+                        awayTeamEN: awayTeamEN.trim(),
+                        awayTeamTC: awayTeamTC.trim(),
+                        stadiumEN: stadiumEN.trim(),
+                        stadiumTC: stadiumTC.trim(),
                     });
                 });
 
@@ -71,10 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderCalendar(matchMap) {
         const calendar = document.getElementById('calendar');
-        const year = new Date().getFullYear();
-        const month = new Date().getMonth();
-        const firstDayOfMonth = new Date(year, month, 1).getDay();
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -92,8 +90,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const dateBox = document.createElement('div');
             dateBox.className = 'date-box';
 
-            const currentDate = new Date(year, month, day);
-            const matchKey = `${year}-${month + 1}-${day}`;
+            const currentDate = new Date(currentYear, currentMonth, day);
+            const matchKey = `${currentYear}-${currentMonth + 1}-${day}`;
 
             if (currentDate.getTime() === today.getTime()) {
                 dateBox.classList.add('today-highlight');
@@ -107,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 matchMap[matchKey].forEach(match => {
                     const matchInfo = document.createElement('div');
                     matchInfo.className = 'match-info';
-                    matchInfo.innerHTML = `<p>${translateTeam(match.homeTeam)} vs ${translateTeam(match.awayTeam)}</p><p>${match.stadium}</p>`;
+                    matchInfo.innerHTML = `<p>${translateTeam(match)} vs ${translateTeam(match, false)}</p><p>${translateStadium(match)}</p>`;
                     dateBox.appendChild(matchInfo);
                 });
             }
@@ -116,8 +114,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function translateTeam(team) {
-        return (language === 'TC') ? teamNames[team] : team;
+    function translateTeam(match, isHome = true) {
+        if (language === 'TC') {
+            return isHome ? match.homeTeamTC : match.awayTeamTC;
+        } else {
+            return isHome ? match.homeTeamEN : match.awayTeamEN;
+        }
+    }
+
+    function translateStadium(match) {
+        return language === 'TC' ? match.stadiumTC : match.stadiumEN;
     }
 
     function loadTeamOptions() {
@@ -136,6 +142,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('langBtn').textContent = language === 'TC' ? 'EN' : 'TC';
     }
 
+    // Function to change month
+    function changeMonth(offset) {
+        currentMonth += offset;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear -= 1;
+        } else if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear += 1;
+        }
+        loadMatches(); // Reload the matches for the new month
+    }
+
     // Initial load
     loadTeamOptions();
     loadMatches();
@@ -148,41 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     document.getElementById('teamSelect').addEventListener('change', function() {
-        const selectedTeam = this.value;
-        fetch('2024_PL_Match.csv')
-            .then(response => response.text())
-            .then(data => {
-                const matches = data.trim().split('\n').slice(1); // Skip header row
-                
-                const matchMap = {};
-
-                matches.forEach(match => {
-                    const matchData = match.split(',');
-                    if (matchData.length < 4) return; // Skip any malformed rows
-
-                    const [date, homeTeam, awayTeam, stadium] = matchData;
-                    const matchDate = parseDate(date.trim());
-
-                    if (selectedTeam !== 'all' && homeTeam.trim() !== selectedTeam && awayTeam.trim() !== selectedTeam) {
-                        return; // Skip matches that don't involve the selected team
-                    }
-
-                    const matchKey = `${matchDate.getFullYear()}-${matchDate.getMonth() + 1}-${matchDate.getDate()}`;
-
-                    if (!matchMap[matchKey]) {
-                        matchMap[matchKey] = [];
-                    }
-
-                    matchMap[matchKey].push({
-                        date: matchDate,
-                        homeTeam: homeTeam.trim(),
-                        awayTeam: awayTeam.trim(),
-                        stadium: stadium.trim(),
-                    });
-                });
-
-                renderCalendar(matchMap);
-            });
+        loadMatches();
     });
 
     document.getElementById('langBtn').addEventListener('click', function() {
@@ -190,5 +175,14 @@ document.addEventListener('DOMContentLoaded', function() {
         this.textContent = language;
         loadTeamOptions(); // Reload team options in the selected language
         loadMatches(); // Reload matches in the selected language
+    });
+
+    // Handle "Last" and "Next" month buttons
+    document.getElementById('lastMonthBtn').addEventListener('click', function() {
+        changeMonth(-1);
+    });
+
+    document.getElementById('nextMonthBtn').addEventListener('click', function() {
+        changeMonth(1);
     });
 });
