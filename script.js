@@ -24,6 +24,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let language = 'TC'; // Default language is Traditional Chinese
 
+    function parseDate(dateString) {
+        // Extract the year, month, and day from the dateString (format: YYYY年MM月DD日)
+        const year = parseInt(dateString.substring(0, 4));
+        const month = parseInt(dateString.substring(5, 7)) - 1; // JavaScript months are 0-based
+        const day = parseInt(dateString.substring(8, 10));
+        return new Date(year, month, day);
+    }
+
     function loadMatches() {
         fetch('2024_PL_Match.csv')
             .then(response => response.text())
@@ -31,16 +39,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 const matches = data.split('\n').slice(1); // Skip header row
                 const calendar = document.getElementById('calendar');
                 calendar.innerHTML = ''; // Clear the calendar
-                const today = new Date().toISOString().split('T')[0];
+                const today = new Date();
+                today.setHours(0, 0, 0, 0); // Normalize today's date
 
                 matches.forEach(match => {
                     const [date, homeTeam, awayTeam, stadium] = match.split(',');
-                    const matchDate = new Date(date.trim()).toISOString().split('T')[0];
+                    const matchDate = parseDate(date.trim());
                     
                     // Create date box
                     const dateBox = document.createElement('div');
                     dateBox.className = 'date-box';
-                    if (matchDate === today) {
+                    if (matchDate.getTime() === today.getTime()) {
                         dateBox.classList.add('today-highlight');
                     }
                     
@@ -73,6 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = language === 'TC' ? teamNames[enName] : enName;
             teamSelect.appendChild(option);
         });
+
+        // Update button labels based on language
+        document.getElementById('todayBtn').textContent = language === 'TC' ? '今日' : 'Today';
+        document.getElementById('tableBtn').textContent = language === 'TC' ? '積分榜' : 'Table';
+        document.getElementById('langBtn').textContent = language === 'TC' ? 'EN' : 'TC';
     }
 
     // Initial load
