@@ -114,7 +114,7 @@ footer {
 }
 
 /* Responsive design */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 430px) {
     .calendar {
         grid-template-columns: repeat(1, 1fr);
     }
