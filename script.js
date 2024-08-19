@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadMatches() {
-        fetch('2024_PL_Match.csv')
+        fetch('2024_PL_Match.csv') // Fetch the CSV file hosted on GitHub Pages
             .then(response => response.text())
             .then(data => {
                 const matches = data.trim().split('\n').slice(1); // Skip header row and trim any extra spaces
@@ -25,6 +25,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const [date, homeTeamTC, awayTeamTC, homeTeamEN, awayTeamEN, stadiumTC] = matchData;
 
+                    if (!date || !homeTeamTC || !awayTeamTC || !homeTeamEN || !awayTeamEN || !stadiumTC) {
+                        return; // Skip rows with missing data
+                    }
+
                     const matchDate = parseDate(date.trim());
                     const matchKey = `${matchDate.getFullYear()}-${matchDate.getMonth() + 1}-${matchDate.getDate()}`;
 
@@ -34,11 +38,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     matchMap[matchKey].push({
                         date: matchDate,
-                        homeTeamEN: homeTeamEN?.trim(),
-                        homeTeamTC: homeTeamTC?.trim(),
-                        awayTeamEN: awayTeamEN?.trim(),
-                        awayTeamTC: awayTeamTC?.trim(),
-                        stadiumTC: stadiumTC?.trim(),
+                        homeTeamEN: homeTeamEN.trim(),
+                        homeTeamTC: homeTeamTC.trim(),
+                        awayTeamEN: awayTeamEN.trim(),
+                        awayTeamTC: awayTeamTC.trim(),
+                        stadiumTC: stadiumTC.trim(),
                     });
                 });
 
