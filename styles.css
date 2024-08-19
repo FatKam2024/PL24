@@ -89,12 +89,13 @@ nav select {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-	font-style: bold;
+	font-weight: bold;
 }
 
 .stadium-info {
     font-style: italic;
     color: #666;
+	font-weight: normal;
 }
 
 .today-highlight {
