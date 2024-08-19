@@ -50,7 +50,7 @@ nav select {
     gap: 10px;
     padding: 20px;
     margin: 0 auto;
-    max-width: 1200px;
+    max-width: 1400px; /* Increased from 1200px */
 }
 
 .month-indicator {
@@ -73,6 +73,7 @@ nav select {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
     min-height: 100px;
+    width: 180px; /* Increased width */
 }
 
 .date-box h3 {
@@ -84,14 +85,13 @@ nav select {
 
 .match-info {
     margin-top: 5px;
-    font-size: 14px;
+    font-size: 12px; /* Reduced font size */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.match-info p {
-    margin: 2px 0;
-}
-
-.match-info .stadium-info {
+.stadium-info {
     font-style: italic;
     color: #666;
 }
