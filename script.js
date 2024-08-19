@@ -36,37 +36,84 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('2024_PL_Match.csv')
             .then(response => response.text())
             .then(data => {
-                const matches = data.split('\n').slice(1); // Skip header row
+                const matches = data.trim().split('\n').slice(1); // Skip header row and trim any extra spaces
                 const calendar = document.getElementById('calendar');
                 calendar.innerHTML = ''; // Clear the calendar
                 const today = new Date();
                 today.setHours(0, 0, 0, 0); // Normalize today's date
 
-                matches.forEach(match => {
-                    const [date, homeTeam, awayTeam, stadium] = match.split(',');
-                    const matchDate = parseDate(date.trim());
-                    
-                    // Create date box
-                    const dateBox = document.createElement('div');
-                    dateBox.className = 'date-box';
-                    if (matchDate.getTime() === today.getTime()) {
-                        dateBox.classList.add('today-highlight');
-                    }
-                    
-                    // Add match details
-                    const dateHeading = document.createElement('h3');
-                    dateHeading.textContent = date.trim();
-                    dateBox.appendChild(dateHeading);
+                const matchMap = {};
 
+                matches.forEach(match => {
+                    const matchData = match.split(',');
+                    if (matchData.length < 4) return; // Skip any malformed rows
+
+                    const [date, homeTeam, awayTeam, stadium] = matchData;
+                    const matchDate = parseDate(date.trim());
+
+                    const matchKey = `${matchDate.getFullYear()}-${matchDate.getMonth() + 1}-${matchDate.getDate()}`;
+
+                    if (!matchMap[matchKey]) {
+                        matchMap[matchKey] = [];
+                    }
+
+                    matchMap[matchKey].push({
+                        date: matchDate,
+                        homeTeam: homeTeam.trim(),
+                        awayTeam: awayTeam.trim(),
+                        stadium: stadium.trim(),
+                    });
+                });
+
+                renderCalendar(matchMap);
+            });
+    }
+
+    function renderCalendar(matchMap) {
+        const calendar = document.getElementById('calendar');
+        const year = new Date().getFullYear();
+        const month = new Date().getMonth();
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        calendar.innerHTML = '';
+
+        // Create grid cells for days before the first of the month
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'date-box empty';
+            calendar.appendChild(emptyCell);
+        }
+
+        // Create cells for each day of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateBox = document.createElement('div');
+            dateBox.className = 'date-box';
+
+            const currentDate = new Date(year, month, day);
+            const matchKey = `${year}-${month + 1}-${day}`;
+
+            if (currentDate.getTime() === today.getTime()) {
+                dateBox.classList.add('today-highlight');
+            }
+
+            const dateHeading = document.createElement('h3');
+            dateHeading.textContent = `${day} (${['日', '一', '二', '三', '四', '五', '六'][currentDate.getDay()]})`;
+            dateBox.appendChild(dateHeading);
+
+            if (matchMap[matchKey]) {
+                matchMap[matchKey].forEach(match => {
                     const matchInfo = document.createElement('div');
                     matchInfo.className = 'match-info';
-                    matchInfo.innerHTML = `<p>${translateTeam(homeTeam.trim())} vs ${translateTeam(awayTeam.trim())}</p><p>${stadium.trim()}</p>`;
+                    matchInfo.innerHTML = `<p>${translateTeam(match.homeTeam)} vs ${translateTeam(match.awayTeam)}</p><p>${match.stadium}</p>`;
                     dateBox.appendChild(matchInfo);
-                    
-                    // Append to calendar
-                    calendar.appendChild(dateBox);
                 });
-            });
+            }
+
+            calendar.appendChild(dateBox);
+        }
     }
 
     function translateTeam(team) {
@@ -102,35 +149,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('teamSelect').addEventListener('change', function() {
         const selectedTeam = this.value;
-        const calendar = document.getElementById('calendar');
-        calendar.innerHTML = ''; // Clear the current calendar
-
         fetch('2024_PL_Match.csv')
             .then(response => response.text())
             .then(data => {
-                const matches = data.split('\n').slice(1); // Skip header row
+                const matches = data.trim().split('\n').slice(1); // Skip header row
                 
-                matches.forEach(match => {
-                    const [date, homeTeam, awayTeam, stadium] = match.split(',');
-                    if (selectedTeam === 'all' || homeTeam.trim() === selectedTeam || awayTeam.trim() === selectedTeam) {
-                        // Recreate date box
-                        const dateBox = document.createElement('div');
-                        dateBox.className = 'date-box';
-                        
-                        // Add match details
-                        const dateHeading = document.createElement('h3');
-                        dateHeading.textContent = date.trim();
-                        dateBox.appendChild(dateHeading);
+                const matchMap = {};
 
-                        const matchInfo = document.createElement('div');
-                        matchInfo.className = 'match-info';
-                        matchInfo.innerHTML = `<p>${translateTeam(homeTeam.trim())} vs ${translateTeam(awayTeam.trim())}</p><p>${stadium.trim()}</p>`;
-                        dateBox.appendChild(matchInfo);
-                        
-                        // Append to calendar
-                        calendar.appendChild(dateBox);
+                matches.forEach(match => {
+                    const matchData = match.split(',');
+                    if (matchData.length < 4) return; // Skip any malformed rows
+
+                    const [date, homeTeam, awayTeam, stadium] = matchData;
+                    const matchDate = parseDate(date.trim());
+
+                    if (selectedTeam !== 'all' && homeTeam.trim() !== selectedTeam && awayTeam.trim() !== selectedTeam) {
+                        return; // Skip matches that don't involve the selected team
                     }
+
+                    const matchKey = `${matchDate.getFullYear()}-${matchDate.getMonth() + 1}-${matchDate.getDate()}`;
+
+                    if (!matchMap[matchKey]) {
+                        matchMap[matchKey] = [];
+                    }
+
+                    matchMap[matchKey].push({
+                        date: matchDate,
+                        homeTeam: homeTeam.trim(),
+                        awayTeam: awayTeam.trim(),
+                        stadium: stadium.trim(),
+                    });
                 });
+
+                renderCalendar(matchMap);
             });
     });
 
