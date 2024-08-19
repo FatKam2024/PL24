@@ -85,10 +85,11 @@ nav select {
 
 .match-info {
     margin-top: 5px;
-    font-size: 12px; /* Reduced font size */
+    font-size: 14px; /* Reduced font size */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+	font-style: bold;
 }
 
 .stadium-info {
