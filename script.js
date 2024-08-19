@@ -49,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function parseDate(dateString) {
-        // Update date parsing to handle "DD/MM/YYYY" format
         const [day, month, year] = dateString.split('/').map(Number);
         return new Date(year, month - 1, day);
     }
@@ -151,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     matchInfo.innerHTML = `<p>${translateTeam(match)} vs ${translateTeam(match, false)}</p>`;
                     
                     if (showStadium) {
-                        matchInfo.innerHTML += `<p>${translateStadium(match)}</p>`;
+                        matchInfo.innerHTML += `<p class="stadium-info">${translateStadium(match)}</p>`;
                     }
                     
                     dateBox.appendChild(matchInfo);
@@ -215,28 +214,34 @@ document.addEventListener('DOMContentLoaded', function() {
         loadMatches();
     }
 
+    function goToToday() {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+        loadMatches();
+        
+        // Wait for the calendar to render, then scroll to today's date
+        setTimeout(() => {
+            const todayElement = document.querySelector('.today-highlight');
+            if (todayElement) {
+                todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
+    }
+
     loadTeamOptions();
     loadMatches();
 
-    document.getElementById('todayBtn')?.addEventListener('click', function() {
-        const todayElement = document.querySelector('.today-highlight');
-        if (todayElement) {
-            todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    });
-
+    document.getElementById('todayBtn')?.addEventListener('click', goToToday);
     document.getElementById('teamSelect')?.addEventListener('change', loadMatches);
-
     document.getElementById('langBtn')?.addEventListener('click', function() {
         language = (language === 'TC') ? 'EN' : 'TC';
         this.textContent = language;
         loadTeamOptions();
         loadMatches();
     });
-
     document.getElementById('lastMonthBtn')?.addEventListener('click', () => changeMonth(-1));
     document.getElementById('nextMonthBtn')?.addEventListener('click', () => changeMonth(1));
-
     document.getElementById('showStadium')?.addEventListener('change', function() {
         showStadium = this.checked;
         loadMatches();

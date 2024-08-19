@@ -91,6 +91,11 @@ nav select {
     margin: 2px 0;
 }
 
+.match-info .stadium-info {
+    font-style: italic;
+    color: #666;
+}
+
 .today-highlight {
     background-color: #ffeb3b;
     border: 2px solid #fbc02d;
