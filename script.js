@@ -45,11 +45,11 @@ document.addEventListener('DOMContentLoaded', function() {
         'EVE': 'Everton'
     };
 
-    let language = 'TC'; // Default language is Traditional Chinese
+    let language = 'TC';
     let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
-    let showStadium = false; // Default to not showing the stadium
-    let selectedTeam = 'all'; // Default to showing all teams
+    let showStadium = false;
+    let selectedTeam = 'all';
 
     const translations = {
         TC: {
@@ -129,13 +129,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         calendar.innerHTML = '';
 
-        // Add month indicator
         const monthIndicator = document.createElement('h2');
         monthIndicator.textContent = translations[language].months[currentMonth] + ' ' + currentYear;
         monthIndicator.className = 'month-indicator';
         calendar.appendChild(monthIndicator);
 
-        // Create grid for days of the week
         const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
         daysOfWeek.forEach(day => {
             const dayLabel = document.createElement('div');
@@ -144,14 +142,12 @@ document.addEventListener('DOMContentLoaded', function() {
             calendar.appendChild(dayLabel);
         });
 
-        // Create grid cells for days before the first of the month
         for (let i = 0; i < firstDayOfMonth; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'date-box empty';
             calendar.appendChild(emptyCell);
         }
 
-        // Create cells for each day of the month
         for (let day = 1; day <= daysInMonth; day++) {
             const dateBox = document.createElement('div');
             dateBox.className = 'date-box';
@@ -164,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const dateHeading = document.createElement('h3');
-            dateHeading.textContent = day;
+            dateHeading.textContent = `${day} (${daysOfWeek[currentDate.getDay()]})`;
             dateBox.appendChild(dateHeading);
 
             if (matchMap[matchKey]) {
@@ -174,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         teamCodes[match.awayTeamCode] === selectedTeam) {
                         const matchInfo = document.createElement('div');
                         matchInfo.className = 'match-info';
-                        matchInfo.innerHTML = `${translateTeam(match)} vs ${translateTeam(match, false)}`;
+                        matchInfo.innerHTML = `<span class="team-name">${translateTeam(match)}</span> vs <span class="team-name">${translateTeam(match, false)}</span>`;
                         
                         if (showStadium) {
                             matchInfo.innerHTML += ` <span class="stadium-info">${translateStadium(match)}</span>`;
@@ -196,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function translateStadium(match) {
-        return match.stadiumTC; // Keep TC as EN is not provided
+        return match.stadiumTC;
     }
 
     function loadTeamOptions() {
@@ -249,11 +245,10 @@ document.addEventListener('DOMContentLoaded', function() {
         currentMonth = today.getMonth();
         loadMatches();
         
-        // Wait for the calendar to render, then scroll to today's date
         setTimeout(() => {
             const todayElement = document.querySelector('.today-highlight');
             if (todayElement) {
-                todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }, 100);
     }
@@ -278,4 +273,21 @@ document.addEventListener('DOMContentLoaded', function() {
         showStadium = this.checked;
         loadMatches();
     });
+
+    // Add this function to handle responsive layout changes
+    function handleResponsiveLayout() {
+        const isMobile = window.innerWidth <= 768;
+        const calendar = document.getElementById('calendar');
+        if (calendar) {
+            if (isMobile) {
+                calendar.classList.add('mobile-view');
+            } else {
+                calendar.classList.remove('mobile-view');
+            }
+        }
+    }
+
+    // Call the function initially and add event listener for window resize
+    handleResponsiveLayout();
+    window.addEventListener('resize', handleResponsiveLayout);
 });

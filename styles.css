@@ -15,8 +15,8 @@ header {
 
 nav {
     background-color: #555;
-    overflow: hidden;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
     padding: 10px 0;
@@ -25,7 +25,7 @@ nav {
 nav a, nav select, nav button, nav label {
     color: white;
     padding: 10px 20px;
-    margin: 0 5px;
+    margin: 5px;
     text-decoration: none;
     border: none;
     background-color: #555;
@@ -50,7 +50,7 @@ nav select {
     gap: 10px;
     padding: 20px;
     margin: 0 auto;
-    max-width: 1400px; /* Increased from 1200px */
+    max-width: 1400px;
 }
 
 .month-indicator {
@@ -73,7 +73,6 @@ nav select {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0,0,0,0.1);
     min-height: 100px;
-    width: 180px; /* Increased width */
 }
 
 .date-box h3 {
@@ -81,21 +80,19 @@ nav select {
     font-size: 18px;
     text-align: right;
     color: #888;
+    font-weight: bold;
 }
 
 .match-info {
     margin-top: 5px;
-    font-size: 15px; /* Reduced font size */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-	font-weight: bold;
+    font-size: 12px;
+    font-weight: bold;
 }
 
-.stadium-info {
+.match-info .stadium-info {
     font-style: italic;
     color: #666;
-	font-weight: normal;
+    font-weight: normal;
 }
 
 .today-highlight {
@@ -114,4 +111,33 @@ footer {
     text-align: center;
     padding: 10px 0;
     margin-top: 20px;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .calendar {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .day-label {
+        display: none;
+    }
+
+    .date-box {
+        min-height: auto;
+    }
+
+    .date-box h3 {
+        text-align: left;
+        margin-bottom: 10px;
+    }
+
+    nav {
+        flex-direction: column;
+    }
+
+    nav a, nav select, nav button, nav label {
+        width: 100%;
+        margin: 5px 0;
+    }
 }
