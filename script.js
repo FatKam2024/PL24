@@ -27,29 +27,47 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentMonth = new Date().getMonth();
     let showStadium = true; // Default to showing the stadium
 
+    const translations = {
+        TC: {
+            today: '今日',
+            table: '積分榜',
+            allTeams: '所有球隊',
+            last: '上月',
+            next: '下月',
+            showStadium: '顯示球場'
+        },
+        EN: {
+            today: 'Today',
+            table: 'Table',
+            allTeams: 'All Teams',
+            last: 'Last',
+            next: 'Next',
+            showStadium: 'Show Stadium'
+        }
+    };
+
     function parseDate(dateString) {
-        // Extract the year, month, and day from the dateString (format: YYYY年MM月DD日)
         const year = parseInt(dateString.substring(0, 4));
-        const month = parseInt(dateString.substring(5, 7)) - 1; // JavaScript months are 0-based
+        const month = parseInt(dateString.substring(5, 7)) - 1;
         const day = parseInt(dateString.substring(8, 10));
         return new Date(year, month, day);
     }
 
     function loadMatches() {
-        fetch('2024_PL_Match.csv') // Fetch the CSV file hosted on GitHub Pages
+        fetch('2024_PL_Match.csv')
             .then(response => response.text())
             .then(data => {
-                const matches = data.trim().split('\n').slice(1); // Skip header row and trim any extra spaces
+                const matches = data.trim().split('\n').slice(1);
                 const matchMap = {};
 
                 matches.forEach(match => {
                     const matchData = match.split(',');
-                    if (matchData.length < 6) return; // Skip any malformed rows
+                    if (matchData.length < 6) return;
 
                     const [date, homeTeamTC, awayTeamTC, homeTeamEN, awayTeamEN, stadiumTC] = matchData;
 
                     if (!date || !homeTeamTC || !awayTeamTC || !homeTeamEN || !awayTeamEN || !stadiumTC) {
-                        return; // Skip rows with missing data
+                        return;
                     }
 
                     const matchDate = parseDate(date.trim());
@@ -78,6 +96,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderCalendar(matchMap) {
         const calendar = document.getElementById('calendar');
+        if (!calendar) return;
+
         const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
         const today = new Date();
@@ -85,14 +105,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         calendar.innerHTML = '';
 
-        // Create grid cells for days before the first of the month
         for (let i = 0; i < firstDayOfMonth; i++) {
             const emptyCell = document.createElement('div');
             emptyCell.className = 'date-box empty';
             calendar.appendChild(emptyCell);
         }
 
-        // Create cells for each day of the month
         for (let day = 1; day <= daysInMonth; day++) {
             const dateBox = document.createElement('div');
             dateBox.className = 'date-box';
@@ -114,7 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     matchInfo.className = 'match-info';
                     matchInfo.innerHTML = `<p>${translateTeam(match)} vs ${translateTeam(match, false)}</p>`;
                     
-                    // Conditionally show the stadium
                     if (showStadium) {
                         matchInfo.innerHTML += `<p>${translateStadium(match)}</p>`;
                     }
@@ -128,20 +145,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function translateTeam(match, isHome = true) {
-        if (language === 'TC') {
-            return isHome ? match.homeTeamTC : match.awayTeamTC;
-        } else {
-            return isHome ? match.homeTeamEN : match.awayTeamEN;
-        }
+        const team = isHome ? match.homeTeamEN : match.awayTeamEN;
+        return language === 'TC' ? teamNames[team] || team : team;
     }
 
     function translateStadium(match) {
-        return language === 'TC' ? match.stadiumTC : match.stadiumEN;
+        return language === 'TC' ? match.stadiumTC : match.stadiumTC;
     }
 
     function loadTeamOptions() {
         const teamSelect = document.getElementById('teamSelect');
-        teamSelect.innerHTML = `<option value="all">${language === 'TC' ? '所有球隊' : 'All Teams'}</option>`;
+        if (!teamSelect) return;
+
+        teamSelect.innerHTML = `<option value="all">${translations[language].allTeams}</option>`;
         Object.keys(teamNames).forEach(enName => {
             const option = document.createElement('option');
             option.value = enName;
@@ -149,13 +165,25 @@ document.addEventListener('DOMContentLoaded', function() {
             teamSelect.appendChild(option);
         });
 
-        // Update button labels based on language
-        document.getElementById('todayBtn').textContent = language === 'TC' ? '今日' : 'Today';
-        document.getElementById('tableBtn').textContent = language === 'TC' ? '積分榜' : 'Table';
-        document.getElementById('langBtn').textContent = language === 'TC' ? 'EN' : 'TC';
+        updateButtonText('todayBtn', translations[language].today);
+        updateButtonText('tableBtn', translations[language].table);
+        updateButtonText('langBtn', language === 'TC' ? 'EN' : 'TC');
+        updateButtonText('lastMonthBtn', translations[language].last);
+        updateButtonText('nextMonthBtn', translations[language].next);
+
+        const showStadiumLabel = document.querySelector('label[for="showStadium"] span');
+        if (showStadiumLabel) {
+            showStadiumLabel.textContent = translations[language].showStadium;
+        }
     }
 
-    // Function to change month
+    function updateButtonText(id, text) {
+        const button = document.getElementById(id);
+        if (button) {
+            button.textContent = text;
+        }
+    }
+
     function changeMonth(offset) {
         currentMonth += offset;
         if (currentMonth < 0) {
@@ -165,43 +193,33 @@ document.addEventListener('DOMContentLoaded', function() {
             currentMonth = 0;
             currentYear += 1;
         }
-        loadMatches(); // Reload the matches for the new month
+        loadMatches();
     }
 
-    // Initial load
     loadTeamOptions();
     loadMatches();
 
-    document.getElementById('todayBtn').addEventListener('click', function() {
+    document.getElementById('todayBtn')?.addEventListener('click', function() {
         const todayElement = document.querySelector('.today-highlight');
         if (todayElement) {
             todayElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     });
 
-    document.getElementById('teamSelect').addEventListener('change', function() {
+    document.getElementById('teamSelect')?.addEventListener('change', loadMatches);
+
+    document.getElementById('langBtn')?.addEventListener('click', function() {
+        language = (language === 'TC') ? 'EN' : 'TC';
+        this.textContent = language;
+        loadTeamOptions();
         loadMatches();
     });
 
-    document.getElementById('langBtn').addEventListener('click', function() {
-        language = (language === 'TC') ? 'EN' : 'TC';
-        this.textContent = language;
-        loadTeamOptions(); // Reload team options in the selected language
-        loadMatches(); // Reload matches in the selected language
-    });
+    document.getElementById('lastMonthBtn')?.addEventListener('click', () => changeMonth(-1));
+    document.getElementById('nextMonthBtn')?.addEventListener('click', () => changeMonth(1));
 
-    // Handle "Last" and "Next" month buttons
-    document.getElementById('lastMonthBtn').addEventListener('click', function() {
-        changeMonth(-1);
-    });
-
-    document.getElementById('nextMonthBtn').addEventListener('click', function() {
-        changeMonth(1);
-    });
-
-    // Handle the "Show Stadium" checkbox
-    document.getElementById('showStadium').addEventListener('change', function() {
+    document.getElementById('showStadium')?.addEventListener('change', function() {
         showStadium = this.checked;
-        loadMatches(); // Reload the matches with the updated stadium visibility
+        loadMatches();
     });
 });

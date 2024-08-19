@@ -8,26 +8,23 @@
 </head>
 <body>
     <header>
-        2024-25 Premier League Match Calendar
+        <h1>2024-25 Premier League Match Calendar</h1>
     </header>
-		<nav>
-			<button id="lastMonthBtn">Last</button>
-			<button id="todayBtn">Today</button>
-			<button id="nextMonthBtn">Next</button>
-			<button id="tableBtn">Table</button>
-			<select id="teamSelect">
-				<!-- Options will be dynamically populated based on the language -->
-			</select>
-			<button id="langBtn">TC</button>
-			<label>
-				<input type="checkbox" id="showStadium" checked> Show Stadium
-			</label>
-		</nav>
-    <div class="calendar" id="calendar">
-        <!-- Dynamic content based on CSV data will be inserted here -->
-    </div>
+    <nav>
+        <button id="lastMonthBtn">上月</button>
+        <button id="todayBtn">今日</button>
+        <button id="nextMonthBtn">下月</button>
+        <select id="teamSelect"></select>
+        <button id="tableBtn">積分榜</button>
+        <button id="langBtn">EN</button>
+        <label for="showStadium">
+            <input type="checkbox" id="showStadium" checked>
+            <span>顯示球場</span>
+        </label>
+    </nav>
+    <div id="calendar" class="calendar"></div>
     <footer>
-        &copy; 2024 CK Premier League. All rights reserved.
+        <p>© 2024 CK Premier League. All rights reserved.</p>
     </footer>
     <script src="script.js"></script>
 </body>
