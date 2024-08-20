@@ -88,9 +88,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const matchData = match.split(',');
                     if (matchData.length < 10) return;
 
-                    const [date, timeHKT, weekday, homeTeamTC, awayTeamTC, homeTeamCode, awayTeamCode, homeTeam, awayTeam, stadiumTC] = matchData;
+                    const [date, timeHKT, weekday, homeTeam, awayTeam, homeTeamCode, awayTeamCode, homeTeamTC, awayTeamTC, stadiumTC, stadium] = matchData;
 
-                    if (!date || !timeHKT || !homeTeamTC || !awayTeamTC || !homeTeamCode || !awayTeamCode || !stadiumTC) {
+                    if (!date || !timeHKT || !homeTeamTC || !awayTeamTC || !homeTeamCode || !awayTeamCode || !stadiumTC || !stadium) {
                         return;
                     }
 
@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         awayTeamCode: awayTeamCode.trim(),
                         awayTeamTC: awayTeamTC.trim(),
                         stadiumTC: stadiumTC.trim(),
+						stadium: stadium.trim(),
                     });
                 });
 
