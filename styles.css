@@ -27,7 +27,7 @@ nav {
     padding: 10px 0;
     position: sticky;
     top: 30px; /* Adjust according to the header's height */
-    z-index: 999;
+    z-index: 1000;
     width: 100%;
 }
 
@@ -60,7 +60,7 @@ nav select {
     padding: 20px;
     margin: 0 auto;
     max-width: 1600px;
-    margin-top: 80px; /* Adjust based on the combined height of the header and nav */
+    margin-top: 0px; /* Adjust based on the combined height of the header and nav */
 }
 
 .month-indicator {
@@ -144,6 +144,7 @@ footer {
 
     nav {
         flex-direction: column;
+
     }
 
     nav a, nav select, nav button, nav label {
