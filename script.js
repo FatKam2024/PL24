@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         matchInfo.innerHTML = `<span class="team-name">${translateTeam(match)}</span> vs <span class="team-name">${translateTeam(match, false)}</span> <span class="time-info">(${match.timeHKT})</span>`;
                         
                         if (showStadium) {
-                            matchInfo.innerHTML += ` <span class="stadium-info">${translateStadium(match)}</span>`;
+                            matchInfo.innerHTML += `<br><span class="stadium-info">${translateStadium(match)}</span>`;
                         }
                         
                         dateBox.appendChild(matchInfo);
@@ -194,9 +194,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return language === 'TC' ? teamTC : teamCode;
     }
 
-    function translateStadium(match) {
-        return match.stadiumTC;
-    }
+	function translateStadium(match) {
+		if (language === 'TC') {
+			return match.stadiumTC; // Return the Traditional Chinese name
+		} else if (language === 'EN') {
+			return match.stadium; // Assuming you have an English stadium name in match.stadiumEN
+		}
+		return match.stadiumTC; // Default to Traditional Chinese if no match found
+	}
 
     function loadTeamOptions() {
         const teamSelect = document.getElementById('teamSelect');
