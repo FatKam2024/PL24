@@ -41,6 +41,7 @@ nav a, nav select, nav button, nav label {
     background-color: #555;
     cursor: pointer;
     font-size: 16px;
+    position: sticky;  /* Or position: fixed; */
 }
 
 nav a:hover, nav button:hover, nav select:hover {
@@ -60,7 +61,7 @@ nav select {
     gap: 10px;
     padding: 20px;
     margin: 0 auto;
-    max-width: 1600px;
+    max-width: 1800px;
     margin-top: 100px; /* Adjust this value based on the combined height of your header and nav */
 }
 
