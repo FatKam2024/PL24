@@ -124,7 +124,7 @@ footer {
 }
 
 /* Responsive design */
-@media screen and (max-width: 430px) {
+@media screen and (max-width: 768px) {
     .calendar {
         grid-template-columns: repeat(1, 1fr);
     }
@@ -142,13 +142,23 @@ footer {
         margin-bottom: 10px;
     }
 
+    header {
+        padding: 5px 0; /* Reduce padding for a smaller height */
+        font-size: 18px; /* Reduce font size for mobile */
+    }
+	
     nav {
-        flex-direction: column;
-
+        flex-direction: row;
+		overflow-x: auto;
     }
 
     nav a, nav select, nav button, nav label {
-        width: 100%;
-        margin: 5px 0;
+        flex: 1 1 auto; /* Allow elements to be flexible in width */
+        margin: 5px; /* Adjust margin for better spacing on mobile */
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    nav label {
+        flex: 0 0 auto; /* Ensure checkbox label doesn't stretch */
     }
 }
