@@ -86,11 +86,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 matches.forEach(match => {
                     const matchData = match.split(',');
-                    if (matchData.length < 6) return;
+                    if (matchData.length < 10) return;
 
-                    const [date, homeTeamTC, awayTeamTC, homeTeamCode, awayTeamCode, stadiumTC] = matchData;
+                    const [date, timeHKT, weekday, homeTeamTC, awayTeamTC, homeTeamCode, awayTeamCode, homeTeam, awayTeam, stadiumTC] = matchData;
 
-                    if (!date || !homeTeamTC || !awayTeamTC || !homeTeamCode || !awayTeamCode || !stadiumTC) {
+                    if (!date || !timeHKT || !homeTeamTC || !awayTeamTC || !homeTeamCode || !awayTeamCode || !stadiumTC) {
                         return;
                     }
 
@@ -103,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     matchMap[matchKey].push({
                         date: matchDate,
+                        timeHKT: timeHKT.trim(),
                         homeTeamCode: homeTeamCode.trim(),
                         homeTeamTC: homeTeamTC.trim(),
                         awayTeamCode: awayTeamCode.trim(),
@@ -168,9 +169,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (selectedTeam === 'all' || 
                         teamCodes[match.homeTeamCode] === selectedTeam || 
                         teamCodes[match.awayTeamCode] === selectedTeam) {
+                        
                         const matchInfo = document.createElement('div');
                         matchInfo.className = 'match-info';
-                        matchInfo.innerHTML = `<span class="team-name">${translateTeam(match)}</span> vs <span class="team-name">${translateTeam(match, false)}</span>`;
+                        matchInfo.innerHTML = `<span class="team-name">${translateTeam(match)}</span> vs <span class="team-name">${translateTeam(match, false)}</span> <span class="time-info">(${match.timeHKT})</span>`;
                         
                         if (showStadium) {
                             matchInfo.innerHTML += ` <span class="stadium-info">${translateStadium(match)}</span>`;
@@ -253,6 +255,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 100);
     }
 
+    function openPremierLeagueTable() {
+        window.open('https://www.premierleague.com/tables', '_blank');
+    }
+	
     loadTeamOptions();
     loadMatches();
 
@@ -273,6 +279,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showStadium = this.checked;
         loadMatches();
     });
+    document.getElementById('tableBtn')?.addEventListener('click', openPremierLeagueTable); // Changed to use window.open()
+
 
     // Add this function to handle responsive layout changes
     function handleResponsiveLayout() {
@@ -286,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
+	
     // Call the function initially and add event listener for window resize
     handleResponsiveLayout();
     window.addEventListener('resize', handleResponsiveLayout);
